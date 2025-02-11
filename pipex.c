@@ -6,7 +6,7 @@
 /*   By: dmoraled <dmoraled@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:17:22 by dmoraled          #+#    #+#             */
-/*   Updated: 2025/02/03 18:01:44 by dmoraled         ###   ########.fr       */
+/*   Updated: 2025/02/11 12:20:11 by dmoraled         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,11 @@ void	arglog(char *arg[])
 {
 	while (*arg)
 	{
-		ft_putendl_fd(*arg, 2);
+		ft_putstr_fd(*arg, 2);
+		ft_putstr_fd(" ", 2);
 		++arg;
 	}
+	ft_putendl_fd("", 2);
 }
 
 char	**get_path(char *env[])
@@ -53,45 +55,46 @@ char	*find_path(char **path, char *name)
 	return (0);
 }
 
-pid_t	run_program(char *cmd[], char *path[], char *env[], int inout[2])
+pid_t	run_program(char *cmd[], char *path[], char *env[], int io[3])
 {
 	pid_t	pid;
 	char	*pname;
 
 	pid = fork();
-	if (pid == 0)
-	{
-		dup2(inout[1], 1);
-		dup2(inout[0], 0);
-		pname = find_path(path, cmd[0]);
-		free(cmd[0]);
-		cmd[0] = pname;
-		arglog(cmd);
-		execve(cmd[0], cmd, env);
-	}
+	if (pid != 0)
+		return (pid);
+	dup2(io[0], 0);
+	dup2(io[1], 1);
+	close(io[2]);
+	pname = find_path(path, cmd[0]);
+	free(cmd[0]);
+	cmd[0] = pname;
+	arglog(cmd);
+	execve(cmd[0], cmd, env);
 	return (pid);
 }
 
 int	main(int argc, char *argv[], char *env[])
 {
-	int		outfd;
-	int		infd;
+	int		io[2];
 	int		pipefd[2];
 	pid_t	pids[2];
 	char	**path;
 
 	if (argc != 5)
 		return (1);
-	infd = open(argv[1], O_RDONLY);
-	outfd = open(argv[4], O_RDWR | O_TRUNC | O_CREAT, 0644);
+	io[0] = open(argv[1], O_RDONLY);
+	io[1] = open(argv[4], O_RDWR | O_TRUNC | O_CREAT, 0644);
 	if (pipe(pipefd) != 0)
 		ft_putendl_fd("pipe error : (", 2);
 	path = get_path(env);
-	pids[0] = run_program(ft_split(argv[2], ' '), path, env, (int []){infd, pipefd[1]});
-	pids[1] = run_program(ft_split(argv[3], ' '), path, env, (int []){pipefd[0], outfd});
-	ft_putstr_fd("waiting", 2);
+	pids[0] = run_program(ft_split(argv[2], ' '), path, env,
+			(int []){io[0], pipefd[1], pipefd[0]});
+	pids[1] = run_program(ft_split(argv[3], ' '), path, env,
+			(int []){pipefd[0], io[1], pipefd[1]});
+	close(pipefd[0]);
+	close(pipefd[1]);
 	waitpid(pids[0], 0, 0);
 	waitpid(pids[1], 0, 0);
-	ft_putendl_fd(".", 2);
 	return (0);
 }
