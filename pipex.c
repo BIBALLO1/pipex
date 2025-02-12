@@ -6,13 +6,14 @@
 /*   By: dmoraled <dmoraled@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:17:22 by dmoraled          #+#    #+#             */
-/*   Updated: 2025/02/11 12:20:11 by dmoraled         ###   ########.fr       */
+/*   Updated: 2025/02/12 13:57:46 by dmoraled         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft/libft.h"
 
 #include <fcntl.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <sys/wait.h>
 
@@ -82,11 +83,27 @@ int	main(int argc, char *argv[], char *env[])
 	char	**path;
 
 	if (argc != 5)
-		return (1);
+	{
+		ft_putendl_fd("Invalid argument count", 2);
+		exit(1);
+	}
 	io[0] = open(argv[1], O_RDONLY);
+	if (io[0] < 0)
+	{
+		perror("input file");
+		exit(1);
+	}
 	io[1] = open(argv[4], O_RDWR | O_TRUNC | O_CREAT, 0644);
+	if (io[1] < 0)
+	{
+		perror("output file");
+		exit(1);
+	}
 	if (pipe(pipefd) != 0)
-		ft_putendl_fd("pipe error : (", 2);
+	{
+		perror("pipe");
+		exit(1);
+	}
 	path = get_path(env);
 	pids[0] = run_program(ft_split(argv[2], ' '), path, env,
 			(int []){io[0], pipefd[1], pipefd[0]});
