@@ -6,59 +6,11 @@
 /*   By: dmoraled <dmoraled@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:17:22 by dmoraled          #+#    #+#             */
-/*   Updated: 2025/02/18 11:42:38 by dmoraled         ###   ########.fr       */
+/*   Updated: 2025/02/18 12:01:00 by dmoraled         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft/libft.h"
-
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/wait.h>
-
-char	**get_path(char *env[])
-{
-	while (*env)
-	{
-		if (ft_strncmp(*env, "PATH", 4) == 0)
-			return (ft_split(&(*env)[5], ':'));
-		++env;
-	}
-	return (0);
-}
-
-void	free_tab(char **path)
-{
-	char	**p;
-
-	if (!path)
-		return ;
-	p = path;
-	while (*p)
-	{
-		free(*p);
-		p++;
-	}
-	free(path);
-}
-
-char	*find_exec_path(char **path, char *name)
-{
-	char	*full_path;
-
-	while (*path)
-	{
-		full_path = ft_strsjoin(*path, name, '/');
-		if (access(full_path, X_OK) == 0)
-			return (full_path);
-		free(full_path);
-		++path;
-	}
-	if (access(name, X_OK) == 0)
-		return (ft_strdup(name));
-	return (0);
-}
+#include "pipex.h"
 
 pid_t	run_program(char *cmd[], char *path[], char *env[], int io[3])
 {

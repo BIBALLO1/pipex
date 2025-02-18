@@ -1,4 +1,5 @@
-SRC = pipex.c
+SRC = pipex.c\
+	  utils.c
 OBJ = $(SRC:.c=.o)
 
 NAME = pipex
@@ -18,14 +19,14 @@ $(LIB):
 	@$(MAKE) --no-print-directory -C $(LIBDIR)
 
 %.o: %.c
-	cc $(CFLAGS) -I$(LIBDIR) -c $< -o $@
+	cc $(CFLAGS) -c $< -o $@
 
 clean:
-	@$(MAKE) --no-print-directory -C libft clean
+	@$(MAKE) --no-print-directory -C $(LIBFT) clean
 	@rm -f $(OBJ)
 
 fclean: clean
-	@$(MAKE) --no-print-directory -C libft fclean
+	@$(MAKE) --no-print-directory -C $(LIBFT) fclean
 	@rm -f $(NAME)
 
 re: fclean all
