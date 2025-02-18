@@ -4,17 +4,17 @@ OBJ = $(SRC:.c=.o)
 NAME = pipex
 
 LIBDIR = libft
-LIBNAME = ft
-LIB = $(LIBDIR)/lib$(LIBNAME).a
+LIB = $(LIBDIR)/libft.a
+LIBFLAGS = -L$(LIBDIR) -lft
 
 CFLAGS = -Wall -Wextra -Werror # -fsanitize=address -g3
 
 all: $(NAME)
 
-$(NAME): makelibft $(OBJ)
-	cc $(CFLAGS) $(OBJ) -L$(LIBDIR) -l$(LIBNAME) -o $@
+$(NAME): $(LIB) $(OBJ)
+	cc $(CFLAGS) $(OBJ) $(LIBFLAGS) -o $@
 
-makelibft:
+$(LIB):
 	@$(MAKE) --no-print-directory -C $(LIBDIR)
 
 %.o: %.c

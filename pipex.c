@@ -6,7 +6,7 @@
 /*   By: dmoraled <dmoraled@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:17:22 by dmoraled          #+#    #+#             */
-/*   Updated: 2025/02/12 13:57:46 by dmoraled         ###   ########.fr       */
+/*   Updated: 2025/02/18 11:42:38 by dmoraled         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,17 +16,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/wait.h>
-
-void	arglog(char *arg[])
-{
-	while (*arg)
-	{
-		ft_putstr_fd(*arg, 2);
-		ft_putstr_fd(" ", 2);
-		++arg;
-	}
-	ft_putendl_fd("", 2);
-}
 
 char	**get_path(char *env[])
 {
@@ -39,7 +28,22 @@ char	**get_path(char *env[])
 	return (0);
 }
 
-char	*find_path(char **path, char *name)
+void	free_tab(char **path)
+{
+	char	**p;
+
+	if (!path)
+		return ;
+	p = path;
+	while (*p)
+	{
+		free(*p);
+		p++;
+	}
+	free(path);
+}
+
+char	*find_exec_path(char **path, char *name)
 {
 	char	*full_path;
 
@@ -63,16 +67,40 @@ pid_t	run_program(char *cmd[], char *path[], char *env[], int io[3])
 
 	pid = fork();
 	if (pid != 0)
+	{
+		free_tab(cmd);
 		return (pid);
+	}
 	dup2(io[0], 0);
 	dup2(io[1], 1);
 	close(io[2]);
-	pname = find_path(path, cmd[0]);
+	pname = find_exec_path(path, cmd[0]);
 	free(cmd[0]);
 	cmd[0] = pname;
-	arglog(cmd);
 	execve(cmd[0], cmd, env);
 	return (pid);
+}
+
+void	init(int argc, char *argv[], int io[2], int pipefd[2])
+{
+	if (argc != 5)
+	{
+		ft_putendl_fd("Usage: <infile> <cmd1> <cmd2> <outfile>", 2);
+		exit(1);
+	}
+	io[0] = open(argv[1], O_RDONLY);
+	io[1] = open(argv[4], O_RDWR | O_TRUNC | O_CREAT, 0644);
+	if (io[0] < 0)
+		perror("input file");
+	if (io[1] < 0)
+		perror("output file");
+	if (io[0] < 0 || io[1] < 0)
+		exit(1);
+	if (pipe(pipefd) != 0)
+	{
+		perror("pipe");
+		exit(1);
+	}
 }
 
 int	main(int argc, char *argv[], char *env[])
@@ -82,28 +110,7 @@ int	main(int argc, char *argv[], char *env[])
 	pid_t	pids[2];
 	char	**path;
 
-	if (argc != 5)
-	{
-		ft_putendl_fd("Invalid argument count", 2);
-		exit(1);
-	}
-	io[0] = open(argv[1], O_RDONLY);
-	if (io[0] < 0)
-	{
-		perror("input file");
-		exit(1);
-	}
-	io[1] = open(argv[4], O_RDWR | O_TRUNC | O_CREAT, 0644);
-	if (io[1] < 0)
-	{
-		perror("output file");
-		exit(1);
-	}
-	if (pipe(pipefd) != 0)
-	{
-		perror("pipe");
-		exit(1);
-	}
+	init(argc, argv, io, pipefd);
 	path = get_path(env);
 	pids[0] = run_program(ft_split(argv[2], ' '), path, env,
 			(int []){io[0], pipefd[1], pipefd[0]});
@@ -113,5 +120,6 @@ int	main(int argc, char *argv[], char *env[])
 	close(pipefd[1]);
 	waitpid(pids[0], 0, 0);
 	waitpid(pids[1], 0, 0);
+	free_tab(path);
 	return (0);
 }
