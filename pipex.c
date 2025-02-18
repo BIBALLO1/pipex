@@ -6,11 +6,12 @@
 /*   By: dmoraled <dmoraled@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:17:22 by dmoraled          #+#    #+#             */
-/*   Updated: 2025/02/18 12:01:00 by dmoraled         ###   ########.fr       */
+/*   Updated: 2025/02/18 12:36:14 by dmoraled         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include "libft/libft.h"
 
 pid_t	run_program(char *cmd[], char *path[], char *env[], int io[3])
 {
@@ -27,6 +28,12 @@ pid_t	run_program(char *cmd[], char *path[], char *env[], int io[3])
 	dup2(io[1], 1);
 	close(io[2]);
 	pname = find_exec_path(path, cmd[0]);
+	if (!pname)
+	{
+		perror(cmd[0]);
+		free_tab(cmd);
+		exit(1);
+	}
 	free(cmd[0]);
 	cmd[0] = pname;
 	execve(cmd[0], cmd, env);
@@ -65,9 +72,9 @@ int	main(int argc, char *argv[], char *env[])
 	init(argc, argv, io, pipefd);
 	path = get_path(env);
 	pids[0] = run_program(ft_split(argv[2], ' '), path, env,
-			(int []){io[0], pipefd[1], pipefd[0]});
+			(int [3]){io[0], pipefd[1], pipefd[0]});
 	pids[1] = run_program(ft_split(argv[3], ' '), path, env,
-			(int []){pipefd[0], io[1], pipefd[1]});
+			(int [3]){pipefd[0], io[1], pipefd[1]});
 	close(pipefd[0]);
 	close(pipefd[1]);
 	waitpid(pids[0], 0, 0);
