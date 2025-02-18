@@ -6,7 +6,7 @@
 /*   By: dmoraled <dmoraled@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:17:22 by dmoraled          #+#    #+#             */
-/*   Updated: 2025/02/18 12:36:14 by dmoraled         ###   ########.fr       */
+/*   Updated: 2025/02/18 12:40:26 by dmoraled         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ pid_t	run_program(char *cmd[], char *path[], char *env[], int io[3])
 	{
 		perror(cmd[0]);
 		free_tab(cmd);
+		free_tab(path);
 		exit(1);
 	}
 	free(cmd[0]);
