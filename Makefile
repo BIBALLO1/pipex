@@ -9,6 +9,7 @@ LIB = $(LIBDIR)/libft.a
 LIBFLAGS = -L$(LIBDIR) -lft
 
 CFLAGS = -Wall -Wextra -Werror # -fsanitize=address -g3
+INC = pipex.h
 
 all: $(NAME)
 
@@ -18,7 +19,7 @@ $(NAME): $(LIB) $(OBJ)
 $(LIB):
 	@$(MAKE) --no-print-directory -C $(LIBDIR)
 
-%.o: %.c
+%.o: %.c $(INC)
 	cc $(CFLAGS) -c $< -o $@
 
 clean:
