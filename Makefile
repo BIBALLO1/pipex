@@ -1,31 +1,33 @@
-SRC = pipex.c
+SRC = pipex.c\
+	  utils.c
 OBJ = $(SRC:.c=.o)
 
 NAME = pipex
 
 LIBDIR = libft
-LIBNAME = ft
-LIB = $(LIBDIR)/lib$(LIBNAME).a
+LIB = $(LIBDIR)/libft.a
+LIBFLAGS = -L$(LIBDIR) -lft
 
 CFLAGS = -Wall -Wextra -Werror # -fsanitize=address -g3
+INC = pipex.h
 
 all: $(NAME)
 
 $(NAME): $(LIB) $(OBJ)
-	cc $(CFLAGS) $(OBJ) -L$(LIBDIR) -l$(LIBNAME) -o $@
+	cc $(CFLAGS) $(OBJ) $(LIBFLAGS) -o $@
 
 $(LIB):
 	@$(MAKE) --no-print-directory -C $(LIBDIR)
 
-%.o: %.c
-	cc $(CFLAGS) -I$(LIBDIR) -c $< -o $@
+%.o: %.c $(INC)
+	cc $(CFLAGS) -c $< -o $@
 
 clean:
-	@$(MAKE) --no-print-directory -C libft clean
+	@$(MAKE) --no-print-directory -C $(LIBFT) clean
 	@rm -f $(OBJ)
 
 fclean: clean
-	@$(MAKE) --no-print-directory -C libft fclean
+	@$(MAKE) --no-print-directory -C $(LIBFT) fclean
 	@rm -f $(NAME)
 
 re: fclean all
