@@ -11,10 +11,10 @@ CFLAGS = -Wall -Wextra -Werror # -fsanitize=address -g3
 
 all: $(NAME)
 
-$(NAME): makelibft $(OBJ)
+$(NAME): $(LIB) $(OBJ)
 	cc $(CFLAGS) $(OBJ) -L$(LIBDIR) -l$(LIBNAME) -o $@
 
-makelibft:
+$(LIB):
 	@$(MAKE) --no-print-directory -C $(LIBDIR)
 
 %.o: %.c
