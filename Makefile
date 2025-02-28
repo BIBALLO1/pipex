@@ -23,11 +23,11 @@ $(LIB):
 	cc $(CFLAGS) -c $< -o $@
 
 clean:
-	@$(MAKE) --no-print-directory -C $(LIBFT) clean
+	@$(MAKE) --no-print-directory -C $(LIBDIR) clean
 	@rm -f $(OBJ)
 
 fclean: clean
-	@$(MAKE) --no-print-directory -C $(LIBFT) fclean
+	@$(MAKE) --no-print-directory -C $(LIBDIR) fclean
 	@rm -f $(NAME)
 
 re: fclean all

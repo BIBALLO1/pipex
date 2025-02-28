@@ -6,7 +6,7 @@
 /*   By: dmoraled <dmoraled@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/03 14:17:22 by dmoraled          #+#    #+#             */
-/*   Updated: 2025/02/18 12:40:26 by dmoraled         ###   ########.fr       */
+/*   Updated: 2025/02/28 10:00:07 by dmoraled         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ pid_t	run_program(char *cmd[], char *path[], char *env[], int io[3])
 	pname = find_exec_path(path, cmd[0]);
 	if (!pname)
 	{
-		perror(cmd[0]);
+		ft_putstr_fd("command not found: ", 2);
+		ft_putendl_fd(cmd[0], 2);
 		free_tab(cmd);
 		free_tab(path);
 		exit(1);
@@ -51,9 +52,9 @@ void	init(int argc, char *argv[], int io[2], int pipefd[2])
 	io[0] = open(argv[1], O_RDONLY);
 	io[1] = open(argv[4], O_RDWR | O_TRUNC | O_CREAT, 0644);
 	if (io[0] < 0)
-		perror("input file");
-	if (io[1] < 0)
-		perror("output file");
+		perror(argv[1]);
+	else if (io[1] < 0)
+		perror(argv[4]);
 	if (io[0] < 0 || io[1] < 0)
 		exit(1);
 	if (pipe(pipefd) != 0)
